@@ -140,5 +140,23 @@ namespace Forma1.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost]
+        public IActionResult Post(Pilotak pilota)
+        {
+            try
+            {
+                using (var cx = new Forma1Context())
+                {
+                    cx.Pilotaks.Add(pilota);
+                    cx.SaveChanges();
+                    return Ok("Pilóta felvétele sikeresen megtörtént!");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(410, ex.Message);
+            }
+        }
     }
 }
