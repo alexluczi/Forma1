@@ -29,5 +29,23 @@ namespace Forma1.Controllers
                 }
             }
         }
+
+        [HttpGet("{pazon}")]
+
+        public IActionResult GetPilota(int pazon)
+        {
+            try
+            {
+                using (var cx = new Forma1Context())
+                {
+                    var pilota = cx.Pilotaks.FirstOrDefault(p => p.Pazon == pazon);
+                    return Ok(pilota);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.InnerException.Message);
+            }
+        }
     }
 }
