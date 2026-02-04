@@ -113,5 +113,32 @@ namespace Forma1.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpDelete("{pazon}")]
+        public IActionResult DeletePilota(int pazon)
+        {
+            try
+            {
+                using (var cx = new Forma1Context())
+                {
+                    var pilota = cx.Pilotaks
+                        .Include(p => p.Eredmenyeks)
+                        .FirstOrDefault(p => p.Pazon == pazon);
+
+                    if (pilota == null)
+                        return NotFound("A pilóta nem található!");
+
+                    cx.Eredmenyeks.RemoveRange(pilota.Eredmenyeks);
+
+                    cx.Pilotaks.Remove(pilota);
+                    cx.SaveChanges();
+                    return Ok("A pilóta sikeresen törölve!");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
