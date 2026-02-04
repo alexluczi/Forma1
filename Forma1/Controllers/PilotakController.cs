@@ -30,19 +30,44 @@ namespace Forma1.Controllers
         }
 
         [HttpGet("{pazon}")]
-        public IActionResult GetPilota(int pazon)
+        public async Task<IActionResult> GetPilota(int pazon)
         {
             try
             {
                 using (var cx = new Forma1Context())
                 {
-                    var pilota = cx.Pilotaks.FirstOrDefault(p => p.Pazon == pazon);
+                    var pilota = await cx.Pilotaks
+                        .Where(p => p.Pazon == pazon)
+                        .Include(p => p.CsapatNavigation)
+                        .Include(p => p.Eredmenyeks)
+                        .Select(p => new
+                        {
+                            Pazon = p.Pazon,
+                            Pnev = p.Pnev,
+                            Szev = p.Szev,
+                            Csapat = p.CsapatNavigation == null ? null : new
+                            {
+                                Csazon = p.CsapatNavigation.Csazon,
+                                Csnev = p.CsapatNavigation.Csnev
+                            },
+                            Eredmenyeks = p.Eredmenyeks.Select(e => new
+                            {
+                                Nagydij = e.Nagydij,
+                                Startpoz = e.Startpoz,
+                                Celpoz = e.Celpoz
+                            }).ToList()
+                        })
+                        .FirstOrDefaultAsync();
+
+                    if (pilota == null)
+                        return NotFound();
+
                     return Ok(pilota);
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(401, ex.InnerException.Message);
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -60,6 +85,7 @@ namespace Forma1.Controllers
                         .Select(p => new
                         {
                             Pazon = p.Pazon,
+
                             Pnev = p.Pnev,
                             Szev = p.Szev,
                             Csapat = p.CsapatNavigation == null ? null : new
