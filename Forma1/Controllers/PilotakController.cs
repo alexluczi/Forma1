@@ -158,5 +158,23 @@ namespace Forma1.Controllers
                 return StatusCode(410, ex.Message);
             }
         }
+
+        [HttpPut]
+        public async Task<IActionResult> Put(Pilotak pilota)
+        {
+            try
+            {
+                using (var cx = new Forma1Context())
+                {
+                    cx.Pilotaks.Update(pilota);
+                    await cx.SaveChangesAsync();
+                    return Ok("Pilóta adatainak módosítása sikeresen megtörtént!");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(408, ex.Message);
+            }
+        }
     }
 }
